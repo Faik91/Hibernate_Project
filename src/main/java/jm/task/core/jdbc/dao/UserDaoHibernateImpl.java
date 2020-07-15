@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,8 +21,8 @@ public class UserDaoHibernateImpl implements UserDao {
         Session session = sessionFactory.openSession();
         try {
             session.beginTransaction();
-            SQLQuery query = session.createSQLQuery("CREATE TABLE users (id INT  PRIMARY KEY AUTO_INCREMENT, name VARCHAR (30), lastName VARCHAR (30), age INT)");
-            query.executeUpdate();
+            SQLQuery sqlQuery = session.createSQLQuery("CREATE TABLE users (id INT  PRIMARY KEY AUTO_INCREMENT, name VARCHAR (30), lastName VARCHAR (30), age INT)");
+            sqlQuery.executeUpdate();
             session.getTransaction().commit();
         }catch (Exception e){
             session.getTransaction().rollback();
@@ -37,8 +38,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try {
             session.beginTransaction();
-            SQLQuery query = session.createSQLQuery("DROP TABLE users");
-            query.executeUpdate();
+            SQLQuery sqlQuery = session.createSQLQuery("DROP TABLE users");
+            sqlQuery.executeUpdate();
             session.getTransaction().commit();
         }catch (Exception e){
             session.getTransaction().rollback();
@@ -54,11 +55,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try {
             session.beginTransaction();
-            SQLQuery query = session.createSQLQuery("INSERT INTO users (name, lastName, age) VALUES (?, ?, ?)");
-            query.setParameter(0, name);
-            query.setParameter(1, lastName);
-            query.setParameter(2, age);
-            query.executeUpdate();
+            session.save(new User(name, lastName, age));
             session.getTransaction().commit();
         }catch (Exception e){
             e.printStackTrace();
@@ -74,8 +71,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try {
             session.beginTransaction();
-            SQLQuery query = session.createSQLQuery("DELETE FROM users WHERE id =" + id);
-            query.executeUpdate();
+            session.createQuery("DELETE FROM User WHERE id =" + id);
             session.getTransaction().commit();
         }catch (Exception e){
             e.printStackTrace();
@@ -92,8 +88,7 @@ public class UserDaoHibernateImpl implements UserDao {
         List<User> userList = null;
         try {
             session.beginTransaction();
-            SQLQuery query = session.createSQLQuery("SELECT * FROM users");
-            query.addEntity(User.class);
+            Query query = session.createQuery("FROM User");
             userList = query.list();
             session.getTransaction().commit();
         }catch (Exception e){
@@ -110,7 +105,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try {
             session.beginTransaction();
-            SQLQuery query = session.createSQLQuery("DELETE FROM users");
+            Query query = session.createQuery("DELETE FROM User");
             query.executeUpdate();
             session.getTransaction().commit();
         }catch (Exception e){
